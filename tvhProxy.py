@@ -2,6 +2,10 @@ import time
 
 from flask import Flask, Response, request, jsonify, abort
 import requests
+from gevent.pywsgi import WSGIServer
+from gevent import monkey
+
+monkey.patch_socket()
 
 app = Flask(__name__)
 
@@ -34,7 +38,7 @@ def status():
         'ScanInProgress': 0,
         'ScanPossible': 1,
         'Source': "Cable",
-        'SourceList': ['Antenna', 'Cable']
+        'SourceList': ['Cable']#, 'Antenna']
     })
 
 
@@ -63,7 +67,7 @@ def stream(channel):
         duration = 60 * 60  # set default timeout to 1h if not set
     else:
         duration = int(request.args.get('duration'))
-    duration = time.time() + duration
+    duration += time.time()
 
     for c in _get_channels():
         if c['number'] == int(channel):
@@ -75,14 +79,12 @@ def stream(channel):
         req = requests.get(url, stream=True)
 
         def generate():
-            while True:
-                for chunk in req.iter_content(chunk_size=4096):
-                    if time.time() < duration:
-                        yield chunk
-                    else:
-                        break
+            for chunk in req.iter_content(chunk_size=10*1024):
+                if not time.time() < duration:
+                    req.close()
+                yield chunk
 
-        return Response(generate(), content_type=req.headers['content-type'])
+        return Response(generate(), content_type=req.headers['content-type'], direct_passthrough=True)
 
 
 def _get_channels():
@@ -97,4 +99,7 @@ def _get_channels():
 
 
 if __name__ == '__main__':
-    app.run(debug=config['debug'], host='0.0.0.0', port=config['tvhProxyPort'], threaded=True)
+    http = WSGIServer(('', config['tvhProxyPort']), app)
+    http.serve_forever()
+
+#    app.run(debug=config['debug'], host='0.0.0.0', port=config['tvhProxyPort'], threaded=True)
