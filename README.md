@@ -9,7 +9,7 @@ virtual enviroment
 ```virtualenv venv```
 
 Activate the virtual enviroment
-```. bin/venv/activate```
+```. venv/bin/activate```
 
 Install the requirements
 ```pip install -r requirements.txt```
