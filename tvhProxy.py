@@ -70,7 +70,7 @@ def stream(channel):
     duration += time.time()
 
     for c in _get_channels():
-        if c['number'] == int(channel):
+        if float(c['number']) == float(channel):
             url = '%s%s%s' % (config['tvhURL'], '/stream/channel/', c['uuid'])
 
     if not url:
