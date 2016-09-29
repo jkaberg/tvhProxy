@@ -1,11 +1,11 @@
-import time
-
-from flask import Flask, Response, request, jsonify, abort
-import requests
+from gevent import monkey; monkey.patch_all()  # need to patch sockets to make requests async
 from gevent.pywsgi import WSGIServer
-from gevent import monkey
+import time
+from flask import Flask, Response, request, jsonify, abort
 
-monkey.patch_socket()
+import requests
+
+CHUNK_SIZE = 1024*1024  # bytes
 
 app = Flask(__name__)
 
@@ -13,8 +13,7 @@ app = Flask(__name__)
 config = {
     'tvhURL': 'http://test:test@127.0.0.1:9981',
     'tvhProxyURL': 'http://127.0.0.1',
-    'tvhProxyPort': 5004,  # do _NOT_ change this.
-    'debug': True
+    'tvhProxyPort': 5004  # do _NOT_ change this.
 }
 
 
@@ -70,7 +69,7 @@ def stream(channel):
     duration += time.time()
 
     for c in _get_channels():
-        if float(c['number']) == float(channel):
+        if str(c['number']) == channel:
             url = '%s%s%s' % (config['tvhURL'], '/stream/channel/', c['uuid'])
 
     if not url:
@@ -79,7 +78,8 @@ def stream(channel):
         req = requests.get(url, stream=True)
 
         def generate():
-            for chunk in req.iter_content(chunk_size=10*1024):
+            yield ''
+            for chunk in req.iter_content(chunk_size=CHUNK_SIZE):
                 if not time.time() < duration:
                     req.close()
                 yield chunk
@@ -99,7 +99,7 @@ def _get_channels():
 
 
 if __name__ == '__main__':
-    http = WSGIServer(('', config['tvhProxyPort']), app)
+    http = WSGIServer(('', config['tvhProxyPort']), app.wsgi_app)
     http.serve_forever()
 
-#    app.run(debug=config['debug'], host='0.0.0.0', port=config['tvhProxyPort'], threaded=True)
+#    app.run(port=config['tvhProxyPort'], host='0.0.0.0', threaded=True)
