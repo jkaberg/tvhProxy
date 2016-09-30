@@ -11,7 +11,7 @@ A small flask app to proxy requests between Plex Media Server and Tvheadend.
 5. Finally run the app with: ```$ python tvhProxy.py```
 
 #### Virtual host configuration
-1. Add an entry to /etc/hosts to use as a virtual host:
+1. Add an entry to /etc/hosts to use as a virtual host (on the machine running PMS):
 
     ```
 127.0.0.1	localhost
