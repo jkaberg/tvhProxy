@@ -11,12 +11,14 @@ A small flask app to proxy requests between Plex Media Server and Tvheadend.
 5. Finally run the app with: ```$ python tvhProxy.py```
 
 #### Virtual host configuration
-1. Add an entry to /etc/hosts to use as a virtual host (on the machine running PMS):
+1. Add an entry in /etc/hosts file (or whatever your OS uses) on the machine running PMS:
 
     ```
-127.0.0.1	localhost
-127.0.0.1	tvhproxy
+    127.0.0.1	localhost
+    127.0.0.1	tvhproxy
     ```
+
+#### Configure web server (virtual host)
 2. Configure a web server virtual host to listen for PMS on port 80 and proxy to tvhProxy on port 5004.
     
     Nginx example:
@@ -34,10 +36,12 @@ A small flask app to proxy requests between Plex Media Server and Tvheadend.
 #### systemd service configuration
 A startup script for Ubuntu can be found in tvhProxy.service (change paths to your setup), install with:
 
+    ```
     $ sudo cp tvhProxy.service /etc/systemd/system/tvhProxy.service
     $ sudo systemctl daemon-reload
     $ sudo systemctl enable tvhProxy.service
     $ sudo systemctl start tvhProxy.service
+    ```
 
 #### Plex configuration
 Enter the virtual host name as the DVR device address (port not required): ```tvhproxy```
