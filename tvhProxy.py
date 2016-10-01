@@ -13,7 +13,8 @@ app = Flask(__name__)
 config = {
     'tvhURL': 'http://test:test@127.0.0.1:9981',
     'tvhProxyURL': 'http://127.0.0.1',
-    'tvhProxyPort': 5004  # do _NOT_ change this.
+    'tvhProxyPort': 5004,  # do _NOT_ change this.
+    'tunerCount': 6  # number of tuners in tvh
 }
 
 
@@ -23,6 +24,7 @@ def discover():
         'FriendlyName': 'tvhProxy',
         'ModelNumber': 'HDTC-2US',
         'FirmwareName': 'hdhomeruntc_atsc',
+        'TunerCount': config['tunerCount'],
         'FirmwareVersion': '20150826',
         'DeviceID': '12345678',
         'DeviceAuth': 'test1234',
@@ -47,7 +49,7 @@ def lineup():
 
     for c in _get_channels():
         if c['enabled']:
-            url = '%s%s%s' % (config['tvhProxyURL'], '/auto/v', c['number'])
+            url = '%s/auto/v%s' % (config['tvhProxyURL'], c['number'])
 
             lineup.append({'GuideNumber': str(c['number']),
                            'GuideName': c['name'],
@@ -61,16 +63,14 @@ def lineup():
 def stream(channel):
     url = ''
     channel = channel.replace('v', '')
+    duration = request.args.get('duration', default=0, type=int)
 
-    if not request.args.get('duration'):
-        duration = 60 * 60  # set default timeout to 1h if not set
-    else:
-        duration = int(request.args.get('duration'))
-    duration += time.time()
+    if not duration == 0:
+        duration += time.time()
 
     for c in _get_channels():
         if str(c['number']) == channel:
-            url = '%s%s%s' % (config['tvhURL'], '/stream/channel/', c['uuid'])
+            url = '%s/stream/channel/%s' % (config['tvhURL'], c['uuid'])
 
     if not url:
         abort(404)
@@ -80,15 +80,16 @@ def stream(channel):
         def generate():
             yield ''
             for chunk in req.iter_content(chunk_size=CHUNK_SIZE):
-                if not time.time() < duration:
+                if not duration == 0 and not time.time() < duration:
                     req.close()
+                    break
                 yield chunk
 
         return Response(generate(), content_type=req.headers['content-type'], direct_passthrough=True)
 
 
 def _get_channels():
-    url = config['tvhURL'] + '/api/channel/grid?start=0&limit=999999'
+    url = '%s/api/channel/grid?start=0&limit=999999' % config['tvhURL']
 
     try:
         r = requests.get(url)
