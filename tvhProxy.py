@@ -14,7 +14,8 @@ config = {
     'tvhURL': 'http://test:test@127.0.0.1:9981',
     'tvhProxyURL': 'http://127.0.0.1',
     'tvhProxyPort': 5004,  # do _NOT_ change this.
-    'tunerCount': 6  # number of tuners in tvh
+    'tunerCount': 6,  # number of tuners in tvh
+    'tvhWeight': 300 # subscription priority
 }
 
 
@@ -70,7 +71,7 @@ def stream(channel):
 
     for c in _get_channels():
         if str(c['number']) == channel:
-            url = '%s/stream/channel/%s' % (config['tvhURL'], c['uuid'])
+            url = '%s/stream/channel/%s?weight=%s' % (config['tvhURL'], c['uuid'], config['tvhWeight'])
 
     if not url:
         abort(404)

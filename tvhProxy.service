@@ -1,5 +1,5 @@
 [Unit]
-Description=An simple proxy for Plex and Tvheadend
+Description=A simple proxy for Plex and Tvheadend
 
 [Service]
 Environment=
