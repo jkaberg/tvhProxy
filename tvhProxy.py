@@ -1,21 +1,19 @@
-from gevent import monkey; monkey.patch_all()  # need to patch sockets to make requests async
-from gevent.pywsgi import WSGIServer
+from gevent import monkey; monkey.patch_all()
+
 import time
-from flask import Flask, Response, request, jsonify, abort
-
 import requests
-
-CHUNK_SIZE = 1024*1024  # bytes
+from gevent.pywsgi import WSGIServer
+from flask import Flask, Response, request, jsonify, abort
 
 app = Flask(__name__)
 
 # URL format: <protocol>://<username>:<password>@<hostname>:<port>, example: https://test:1234@localhost:9981
 config = {
-    'tvhURL': 'http://test:test@127.0.0.1:9981',
-    'tvhProxyURL': 'http://127.0.0.1',
-    'tvhProxyPort': 5004,  # do _NOT_ change this.
+    'tvhURL': 'http://test:test@localhost:9981',
+    'tvhProxyURL': 'http://localhost',
     'tunerCount': 6,  # number of tuners in tvh
-    'tvhWeight': 300 # subscription priority
+    'tvhWeight': 300,  # subscription priority
+    'chunkSize': 1024*1024  # usually you don't need to edit this
 }
 
 
@@ -29,8 +27,8 @@ def discover():
         'FirmwareVersion': '20150826',
         'DeviceID': '12345678',
         'DeviceAuth': 'test1234',
-        'BaseURL': '%s:%s' % (config['tvhProxyURL'], config['tvhProxyPort']),
-        'LineupURL': '%s:%s/lineup.json' % (config['tvhProxyURL'], config['tvhProxyPort'])
+        'BaseURL': '%s' % config['tvhProxyURL'],
+        'LineupURL': '%s/lineup.json' % config['tvhProxyURL']
     })
 
 
@@ -40,7 +38,7 @@ def status():
         'ScanInProgress': 0,
         'ScanPossible': 1,
         'Source': "Cable",
-        'SourceList': ['Cable']#, 'Antenna']
+        'SourceList': ['Cable']
     })
 
 
@@ -80,7 +78,7 @@ def stream(channel):
 
         def generate():
             yield ''
-            for chunk in req.iter_content(chunk_size=CHUNK_SIZE):
+            for chunk in req.iter_content(chunk_size=config['chunkSize']):
                 if not duration == 0 and not time.time() < duration:
                     req.close()
                     break
@@ -101,7 +99,5 @@ def _get_channels():
 
 
 if __name__ == '__main__':
-    http = WSGIServer(('', config['tvhProxyPort']), app.wsgi_app)
+    http = WSGIServer(('', 5004), app.wsgi_app)
     http.serve_forever()
-
-#    app.run(port=config['tvhProxyPort'], host='0.0.0.0', threaded=True)
