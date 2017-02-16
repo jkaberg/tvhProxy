@@ -58,6 +58,11 @@ def lineup():
     return jsonify(lineup)
 
 
+@app.route('/lineup.post')
+def lineup_post():
+    return ''
+
+
 @app.route('/auto/<channel>')
 def stream(channel):
     url = ''
