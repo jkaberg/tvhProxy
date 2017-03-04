@@ -1,6 +1,7 @@
 from gevent import monkey; monkey.patch_all()
 
 import time
+import os
 import requests
 from gevent.pywsgi import WSGIServer
 from flask import Flask, Response, request, jsonify, abort
@@ -9,11 +10,11 @@ app = Flask(__name__)
 
 # URL format: <protocol>://<username>:<password>@<hostname>:<port>, example: https://test:1234@localhost:9981
 config = {
-    'tvhURL': 'http://test:test@localhost:9981',
-    'tvhProxyURL': 'http://localhost',
-    'tunerCount': 6,  # number of tuners in tvh
-    'tvhWeight': 300,  # subscription priority
-    'chunkSize': 1024*1024  # usually you don't need to edit this
+    'tvhURL': os.environ.get('TVH_URL') or 'http://test:test@localhost:9981',
+    'tvhProxyURL': os.environ.get('TVH_PROXY_URL') or 'http://localhost',
+    'tunerCount': os.environ.get('TVH_TUNER_COUNT') or 6,  # number of tuners in tvh
+    'tvhWeight': os.environ.get('TVH_WEIGHT') or 300,  # subscription priority
+    'chunkSize': os.environ.get('TVH_CHUNK_SIZE') or 1024*1024  # usually you don't need to edit this
 }
 
 
