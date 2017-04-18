@@ -10,11 +10,11 @@ app = Flask(__name__)
 
 # URL format: <protocol>://<username>:<password>@<hostname>:<port>, example: https://test:1234@localhost:9981
 config = {
-    'bindAddr': os.environ.get('TVH_BINDADDR') or '',
-    'tvhURL': os.environ.get('TVH_URL') or 'http://test:test@localhost:9981',
-    'tvhProxyURL': os.environ.get('TVH_PROXY_URL') or 'http://localhost',
-    'tunerCount': os.environ.get('TVH_TUNER_COUNT') or 6,  # number of tuners in tvh
-    'tvhWeight': os.environ.get('TVH_WEIGHT') or 300,  # subscription priority
+    'bindAddr': str(os.environ.get('TVH_BINDADDR')) or '',
+    'tvhURL': str(os.environ.get('TVH_URL')) or 'http://test:test@localhost:9981',
+    'tvhProxyURL': str(os.environ.get('TVH_PROXY_URL')) or 'http://localhost',
+    'tunerCount': int(os.environ.get('TVH_TUNER_COUNT')) or 6,  # number of tuners in tvh
+    'tvhWeight': int(os.environ.get('TVH_WEIGHT')) or 300,  # subscription priority
     'chunkSize': os.environ.get('TVH_CHUNK_SIZE') or 1024*1024  # usually you don't need to edit this
 }
 
