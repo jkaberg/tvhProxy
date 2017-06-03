@@ -50,7 +50,7 @@ def lineup():
 
     for c in _get_channels():
         if c['enabled']:
-            url = '%s/auto/v%s' % (config['tvhProxyURL'], c['number'])
+            url = '%s/stream/channel/%s?weight=%s' % (config['tvhURL'], c['uuid'], int(config['tvhWeight']))
 
             lineup.append({'GuideNumber': str(c['number']),
                            'GuideName': c['name'],
@@ -63,35 +63,6 @@ def lineup():
 @app.route('/lineup.post')
 def lineup_post():
     return ''
-
-
-@app.route('/auto/<channel>')
-def stream(channel):
-    url = ''
-    channel = channel.replace('v', '')
-    duration = request.args.get('duration', default=0, type=int)
-
-    if not duration == 0:
-        duration += time.time()
-
-    for c in _get_channels():
-        if str(c['number']) == channel:
-            url = '%s/stream/channel/%s?weight=%s' % (config['tvhURL'], c['uuid'], int(config['tvhWeight']))
-
-    if not url:
-        abort(404)
-    else:
-        req = requests.get(url, stream=True)
-
-        def generate():
-            yield ''
-            for chunk in req.iter_content(chunk_size=config['chunkSize']):
-                if not duration == 0 and not time.time() < duration:
-                    req.close()
-                    break
-                yield chunk
-
-        return Response(generate(), content_type=req.headers['content-type'], direct_passthrough=True)
 
 
 def _get_channels():
