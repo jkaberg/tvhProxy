@@ -19,4 +19,4 @@ A startup script for Ubuntu can be found in tvhProxy.service (change paths in tv
     $ sudo systemctl start tvhProxy.service
 
 #### Plex configuration
-Enter the virtual host name as the DVR device address (do **not** enter any port) when setting up Plex DVR: ```tvhproxy```
+Enter the IP of the host running tvhProxy including port 5004, eg.: ```192.168.1.50:5004```
