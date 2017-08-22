@@ -15,7 +15,8 @@ config = {
     'tvhProxyURL': os.environ.get('TVH_PROXY_URL') or 'http://localhost',
     'tunerCount': os.environ.get('TVH_TUNER_COUNT') or 6,  # number of tuners in tvh
     'tvhWeight': os.environ.get('TVH_WEIGHT') or 300,  # subscription priority
-    'chunkSize': os.environ.get('TVH_CHUNK_SIZE') or 1024*1024  # usually you don't need to edit this
+    'chunkSize': os.environ.get('TVH_CHUNK_SIZE') or 1024*1024,  # usually you don't need to edit this
+    'streamProfile': os.environ.get('TVH_PROFILE') or 'pass'  # specifiy a stream profile that you want to use for adhoc transcoding in tvh, e.g. mp4
 }
 
 
@@ -50,7 +51,7 @@ def lineup():
 
     for c in _get_channels():
         if c['enabled']:
-            url = '%s/stream/channel/%s?weight=%s' % (config['tvhURL'], c['uuid'], int(config['tvhWeight']))
+            url = '%s/stream/channel/%s?profile=%s&weight=%s' % (config['tvhURL'], c['uuid'], config['streamProfile'],int(config['tvhWeight']))
 
             lineup.append({'GuideNumber': str(c['number']),
                            'GuideName': c['name'],
