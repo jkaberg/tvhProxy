@@ -1,0 +1,16 @@
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <URLBase>{{ data.BaseURL }}</URLBase>
+    <device>
+        <deviceType>urn:schemas-upnp-org:device:MediaServer:1</deviceType>
+        <friendlyName>{{ data.FriendlyName }}</friendlyName>
+        <manufacturer>{{ data.Manufacturer }}</manufacturer>
+        <modelName>{{ data.ModelNumber }}</modelName>
+        <modelNumber>{{ data.ModelNumber }}</modelNumber>
+        <serialNumber></serialNumber>
+        <UDN>uuid:{{ data.DeviceID }}</UDN>
+    </device>
+</root>
