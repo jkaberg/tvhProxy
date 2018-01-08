@@ -63,7 +63,7 @@ def lineup():
     return jsonify(lineup)
 
 
-@app.route('/lineup.post', methods=[‘GET’, ‘POST’])
+@app.route('/lineup.post', methods=['GET', 'POST'])
 def lineup_post():
     return ''
 
